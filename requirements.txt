@@ -1,0 +1,10 @@
+python-dotenv
+tqdm
+pandas
+numpy
+rank-bm25
+sentence-transformers
+faiss-cpu
+openai
+streamlit
+tiktoken

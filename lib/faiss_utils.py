@@ -1,11 +1,12 @@
 import json
+import os
 from typing import List, Tuple
 
 import faiss
 import numpy as np
+from dotenv import load_dotenv
 from openai import OpenAI
 
-from dotenv import load_dotenv
 load_dotenv()
 
 from .chunking import Chunk
@@ -29,7 +30,7 @@ class FaissIndex:
     def build(
         cls,
         chunks: List[Chunk],
-        model: str = "text-embedding-3-small",
+        model: str = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
         batch_size: int = 64,
     ) -> "FaissIndex":
         client = OpenAI()
@@ -39,11 +40,13 @@ class FaissIndex:
         batch_texts = []
         for ch in chunks:
             batch_texts.append(ch.norm_text)
-            meta.append({
-                "chunk_id": ch.chunk_id,
-                "doc_id": ch.doc_id,
-                "sc_link": ch.sc_link,
-            })
+            meta.append(
+                {
+                    "chunk_id": ch.chunk_id,
+                    "doc_id": ch.doc_id,
+                    "sc_link": ch.sc_link,
+                }
+            )
             if len(batch_texts) == batch_size:
                 V = cls._embed_batch(client, batch_texts, model)
                 all_vecs.append(V)
@@ -85,7 +88,7 @@ class FaissIndex:
     def search(
         self,
         query: str,
-        model: str = "text-embedding-3-small",
+        model: str = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
         top_n: int = 50,
     ) -> List[Tuple[str, float]]:
         client = OpenAI()

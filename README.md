@@ -18,6 +18,13 @@ OPENAI_API_KEY=your_api_key_here
 
 The application uses this key for embeddings and answer generation.
 
+If you want to use other OpenAI compatible providers, override the base url and the model name in the `.env` file too.
+```env
+OPENAI_BASE_URL=your_api_provider_base_url
+OPENAI_API_KEY=your_api_provider_api_key
+OPENAI_EMBEDDING_MODEL=your_api_provider_embedding_model_name
+```
+
 ## Installation & Setup
 
 **1. Create and activate virtual environment:**

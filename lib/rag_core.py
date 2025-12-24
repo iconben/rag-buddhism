@@ -1,15 +1,17 @@
 import json
+import os
 from dataclasses import dataclass
 from typing import Dict, List
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from .bm25_utils import BM25Index
+from .chunking import Chunk
 from .faiss_utils import FaissIndex
 from .hybrid_search import merge_rankings
-from .chunking import Chunk
 
-from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -46,7 +48,7 @@ def build_user_prompt(question: str, contexts: List[RetrievedContext]) -> str:
 def generate_answer(
     question: str,
     contexts: List[RetrievedContext],
-    model: str = "gpt-4o-mini",
+    model: str = os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
     max_tokens: int = 500,
 ) -> str:
     client = OpenAI()
@@ -84,11 +86,13 @@ def retrieve_hybrid(
         meta = chunk_lookup.get(cid)
         if not meta:
             continue
-        out.append(RetrievedContext(
-            chunk_id=cid,
-            doc_id=meta["doc_id"],
-            text=meta["text"],
-            sc_link=meta["sc_link"],
-            score=score,
-        ))
+        out.append(
+            RetrievedContext(
+                chunk_id=cid,
+                doc_id=meta["doc_id"],
+                text=meta["text"],
+                sc_link=meta["sc_link"],
+                score=score,
+            )
+        )
     return out

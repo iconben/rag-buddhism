@@ -6,13 +6,14 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from lib.bm25_utils import BM25Index
 from lib.faiss_utils import FaissIndex
-from lib.rag_core import load_chunk_lookup, retrieve_hybrid, generate_answer
+from lib.rag_core import generate_answer, load_chunk_lookup, retrieve_hybrid
 
 INDEX_DIR = Path("index")
 BM25_PATH = INDEX_DIR / "bm25.pkl"
@@ -34,7 +35,10 @@ def main():
             break
 
         contexts = retrieve_hybrid(
-            q, bm25, faiss, chunk_lookup,
+            q,
+            bm25,
+            faiss,
+            chunk_lookup,
             n_bm25=50,
             n_faiss=50,
             rrf_k=60,
@@ -47,7 +51,7 @@ def main():
             print(f"  {c.text[:200]}...")
         print()
 
-        answer = generate_answer(q, contexts, model="gpt-4o-mini")
+        answer = generate_answer(q, contexts)
         print("[Answer]")
         print(answer)
 

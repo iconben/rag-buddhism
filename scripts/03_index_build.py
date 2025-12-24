@@ -6,12 +6,13 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from lib.chunking import Chunk
 from lib.bm25_utils import BM25Index
+from lib.chunking import Chunk
 from lib.faiss_utils import FaissIndex
 
 CHUNKS_PATH = Path("chunks/chunks.json")
@@ -27,14 +28,16 @@ def load_chunks() -> list[Chunk]:
         data = json.load(f)
     chunks = []
     for d in data:
-        chunks.append(Chunk(
-            chunk_id=d["chunk_id"],
-            doc_id=d["doc_id"],
-            segment_ids=d["segment_ids"],
-            text=d["text"],
-            norm_text=d["norm_text"],
-            sc_link=d["sc_link"],
-        ))
+        chunks.append(
+            Chunk(
+                chunk_id=d["chunk_id"],
+                doc_id=d["doc_id"],
+                segment_ids=d["segment_ids"],
+                text=d["text"],
+                norm_text=d["norm_text"],
+                sc_link=d["sc_link"],
+            )
+        )
     return chunks
 
 
@@ -50,7 +53,7 @@ def main():
     print(f"Saved BM25 index to {BM25_PATH}")
 
     # FAISS
-    fa = FaissIndex.build(chunks, model="text-embedding-3-small")
+    fa = FaissIndex.build(chunks)
     fa.save(str(FAISS_INDEX_PATH), str(FAISS_META_PATH))
     print(f"Saved FAISS index to {FAISS_INDEX_PATH}, meta to {FAISS_META_PATH}")
 
